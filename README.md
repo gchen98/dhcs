@@ -6,6 +6,73 @@ Scope decisions already made: California statewide (all ZCTAs), real ACS-derived
 
 ---
 
+## 0\. Reproducing the inputs
+
+### Environment
+
+Create a conda environment with everything the workflow and the notebook need.
+`snakemake` comes from bioconda; everything else from conda-forge:
+
+```bash
+conda create -n dhcs-sdi -c conda-forge -c bioconda \
+    python=3.12 snakemake-minimal jupyterlab \
+    pandas numpy scipy matplotlib statsmodels geopandas pyarrow requests nbconvert
+
+conda activate dhcs-sdi
+```
+
+What each one is for: **snakemake-minimal** runs the workflow (the full
+`snakemake` package adds cluster/cloud executors this project does not use);
+**pandas / numpy** for all tabular work; **scipy** for `expit` in the simulation;
+**statsmodels** for the GLM and OLS cost regressions; **matplotlib** for the 26
+figures; **geopandas** for the ZCTA boundary join and choropleths; **pyarrow**
+for the Parquet claims file; **requests** for the Census API pull; **nbconvert**
+for the headless `notebook` rule; **jupyterlab** to open the notebook by hand.
+
+Then launch the notebook — pick the **Python 3 (ipykernel)** kernel, which is
+this environment's:
+
+```bash
+jupyter lab notebooks/01_sdi_construction.ipynb
+```
+
+Verified on 2026-09-14: a fresh env built with the command above (Python 3.12,
+pandas 3.0.5, geopandas 1.1.4, snakemake 9.x) runs the whole workflow and the
+notebook end to end from an empty directory. Note that conda-forge currently
+resolves to pandas 3.x; the notebook runs clean on both 2.3 and 3.0, and
+`sdi_by_zcta.csv` agrees between them to 3e-14.
+
+### Running it
+
+Everything the notebook opens on startup is built by the `Snakefile` at the repo
+root — four public downloads plus the two derived files:
+
+```
+snakemake -c4            # build all inputs for notebooks/01_sdi_construction.ipynb
+snakemake -c1 notebook   # the above, then execute the notebook headlessly
+snakemake -c1 -n         # dry run: what is missing / stale
+```
+
+| Target | Source | Used by |
+|---|---|---|
+| `data/raw/tab20_zcta520_county20_natl.txt` | Census 2020 ZCTA-county relationship file | CA membership |
+| `data/raw/2024_Gaz_zcta_national.txt` | Census 2024 gazetteer | land area, density denominator |
+| `data/interim/ca_zcta_universe.csv` | `src/01_ca_zcta_universe.py` | notebook §1 |
+| `data/raw/acs2024_zcta_ca_raw.csv` | `src/02_pull_acs.py` (needs `CENSUS_API_KEY`) | notebook §2-5 |
+| `data/raw/rgc_sdi_2015_2019_zcta.csv` | Robert Graham Center published SDI | notebook §7 validation |
+| `data/raw/geo/cb_2020_us_zcta520_500k.*` | Census 2020 cartographic boundaries | notebook §5.2 choropleths |
+
+The ACS pull needs a free Census API key, read from `$CENSUS_API_KEY` or the
+untracked `.census_api_key` file at the repo root. URLs, the ACS vintage, and
+the boundary-file stem live in `config/pipeline.yaml`.
+
+Rules invoke the same interpreter that is running Snakemake, so whichever
+environment you launch `snakemake` from is the one the scripts and the notebook
+execute in — no per-rule activation, and no way for the workflow to silently
+drift into a different Python than the one you tested.
+
+---
+
 ## 1\. Pipeline overview
 
 ACS 5-year data (ZCTA)          Synthetic eligibility file          Synthetic claims file

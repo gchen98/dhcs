@@ -1,0 +1,25 @@
+# ACS 5-year end year. Must match ACS_YEAR in notebooks/01_sdi_construction.ipynb
+# (the notebook opens data/raw/acs{ACS_YEAR}_zcta_ca_raw.csv by name).
+acs_year: 2024
+
+# Census gazetteer vintage (land area). Must match the filename src/01 reads.
+gazetteer_year: 2024
+
+# Census cartographic boundary file stem, 2020 vintage, 1:500k generalized.
+boundary_stem: cb_2020_us_zcta520_500k
+
+urls:
+  # 2020 ZCTA-to-county relationship file (pipe-delimited).
+  zcta_county_rel: https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_county20_natl.txt
+
+  # 2024 national ZCTA gazetteer: ALAND_SQMI + internal point lat/lon.
+  gazetteer: https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_zcta_national.zip
+
+  # Published Robert Graham Center SDI, ACS 2015-2019, ZCTA level.
+  # Linked from https://www.graham-center.org/maps-data-tools/social-deprivation-index.html
+  # The v-prefixed path segment is an asset version; if it 404s, re-scrape the
+  # link for "rgc_sdi_2015_through_2019_zcta" from that page.
+  rgc_sdi_zcta: https://www.aafp.org/assets/raw/upload/v1779124857/asset_rgc_sdi_2015_through_2019_zcta.csv
+
+  # 2020 ZCTA cartographic boundaries (~67 MB zipped).
+  zcta_boundaries: https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_zcta520_500k.zip
