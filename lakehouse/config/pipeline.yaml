@@ -1,0 +1,18 @@
+# URL string prefix to build the final URL that will fetch metadata on desired
+# dataset
+
+metadata_fetch_url: "https://publish.data.ca.gov/api/3/action/package_show?id="
+
+
+datasets:
+  medicaid_groups_by_aid_code:
+    api_id: "california-medicaid-eligibility-groups-by-medi-cal-aid-code"
+    resources:
+      eligibility_groups_by_aid_code: "a6525f17-9569-4c6b-bc07-d377fccfa263"
+      tmsis_changelog: "8560a591-777d-420f-9c47-a1dc890e8494"
+  eligible_individuals_by_aid_code:
+    api_id: "statewide-medi-cal-certified-eligible-individuals-by-aid-code-2010-to-the-most-recent-reportabl"
+    resources:
+      certified_eligible_individuals_by_aid_code: "59477496-5e5b-40ff-adc9-9ae7c6ed5c17"
+
+

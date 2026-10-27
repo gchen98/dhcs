@@ -1,0 +1,68 @@
+import os
+import sys
+from pathlib import Path
+from snakemake.exceptions import WorkflowError
+
+configfile: "config/pipeline.yaml"
+
+ROOT = Path(workflow.basedir)
+DATA="data"
+RAW = "data/raw"
+
+
+PYTHON = config.get('python') or sys.executable
+
+RAW_FILES = [
+    f"{RAW}/{dataset}/{resource}.csv" for dataset,details in config["datasets"].items() for resource in details['resources'].keys()
+]
+
+rule all:
+    input:
+        RAW_FILES
+
+# this rule, in addition to generating the output files listed, will make a copy of the
+# output files that contain the dataset's UUID and the download time for auditing purposes.
+
+rule download_metadata_files:
+    input:
+        script="src/download_metadata.py",
+    output:
+        json=f"{DATA}/metadata/{{dataset}}.json",
+    params:
+        fetch_url=config["metadata_fetch_url"],
+        api_id=lambda wildcards: config["datasets"][wildcards.dataset]["api_id"]
+    shell:
+        # """
+        # echo "Running download metadata with {params.fetch_url} and {params.api_id}" > {output.json}
+        # """
+        f"{PYTHON} {{input.script}} --fetch_url {{params.fetch_url}} --api_id {{params.api_id}} --output {{output.json}}"
+
+# likewise for this rule we want to make a copy of the outputs that have UUID
+# and download time in the filename
+
+rule download_raw_files:
+    input:
+        json=f"{DATA}/metadata/{{dataset}}.json",
+        script="src/download_rawdata.py",
+    output:
+        csv=f"{RAW}/{{dataset}}/{{resource}}.csv",
+    params:
+        file_id=lambda wildcards: config["datasets"][wildcards.dataset]["resources"][wildcards.resource]
+    shell:
+        # """
+        # #echo "download raw with file id {params.file_id}" > {output.csv}
+        # """
+        f"{PYTHON} {{input.script}} --metadata {{input.json}} --file_id {{params.file_id}} --output {{output.csv}}"
+
+
+rule upload_files:
+    input:
+        metadata_download_log = f"{DATA}metadata_download_log.txt",
+        rawdata_download_log=f"{DATA}rawdata_download_log.txt",
+    output:
+        upload_log=f"{DATA}upload_log.txt"
+    shell:
+        """
+        echo "hello"
+        """
+        #TBD
