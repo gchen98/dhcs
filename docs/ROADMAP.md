@@ -3,8 +3,8 @@
 Order of work: (1) real data, (2) Power BI, (3) ArcGIS. Update this file as items are done.
 
 ## 1. Real public data (data.ca.gov / CHHS)
-- Candidate dataset: Medi-Cal Managed Care Enrollment Report (monthly enrollment by county, plan, and aid category) on the California open data portal. Confirm the current dataset id, columns, and update schedule before building on it.
-- Granularity is county, not ZCTA. Roll ZCTA SDI up to county (population-weighted) and compare real enrollment mix (aid category, plan) across SDI levels.
+- Dataset (confirmed 2026-10-22): **Medi-Cal Managed Care Enrollment Report** (`medi-cal-managed-care-enrollment-report` on data.ca.gov, DHCS). Columns: Enrollment Month, Plan Type, County, Plan Name, Count of Enrollees, plus annotation code/description (suppression). Monthly from 2007-01. **No aid category.** Counties are names, not FIPS; counts are comma-formatted text.
+- Granularity is county x plan x month. Roll ZCTA SDI up to county (population-weighted) and compare **enrollment per capita** (enrollees / ACS county population from the same rollup) and plan type across SDI levels. Plan type is set countywide, so it describes county context, not member mix.
 - Add `src/03_pull_medi_cal_enrollment.py` and a Snakemake rule; cache raw files under `data/raw/`.
 - Keep real and simulated results clearly separated in all figures and tables.
 

@@ -14,6 +14,8 @@ files the notebook opens on startup.
       |                                                    |
       +-- src/02_pull_acs.py <----------------------------'
       |        `-> data/raw/acs2024_zcta_ca_raw.csv        (needs CENSUS_API_KEY)
+      +-- src/02_pull_acs_county.py <----------------------------'
+      |        `-> data/raw/acs2024_county_counts_ca_raw.csv        (needs CENSUS_API_KEY)
       |
       +-- rgc_sdi_2015_2019_zcta.csv       (published RGC SDI, section 7 validation)
       +-- cb_2020_us_zcta520_500k.shp      (ZCTA boundaries, section 5.2 choropleths)
@@ -83,6 +85,7 @@ def census_api_key():
 NOTEBOOK_INPUTS = [
     f"{INTERIM}/ca_zcta_universe.csv",
     f"{RAW}/acs{ACS_YEAR}_zcta_ca_raw.csv",
+    f"{RAW}/acs{ACS_YEAR}_county_counts_ca_raw.csv",
     f"{RAW}/rgc_sdi_2015_2019_zcta.csv",
     *[f"{RAW}/geo/{BOUNDARY_STEM}{ext}" for ext in BOUNDARY_EXTS],
 ]
@@ -180,6 +183,22 @@ rule ca_zcta_universe:
         "logs/01_ca_zcta_universe.log",
     shell:
         f"{PYTHON} {{input.script}} > {{log}} 2>&1"
+
+
+rule pull_acs_county:
+    """Pulls ACS 5-year population counts on a county level to be used as the denominator for enrollees per capita. This can be used as comparison to a approach where we estimate county population from the ACS dataset that broke population down by ZCTA."""
+
+    input:
+        script="src/02_pull_acs_county.py",
+    output:
+        f"{RAW}/acs{ACS_YEAR}_county_counts_ca_raw.csv",
+    params:
+        year=ACS_YEAR,
+        key=lambda wildcards: census_api_key(),
+    log:
+        "logs/02_pull_acs_county.log",
+    shell:
+        f"{PYTHON} {{input.script}} --year {{params.year}} --key {{params.key:q}} > {{log}} 2>&1"
 
 
 rule pull_acs:

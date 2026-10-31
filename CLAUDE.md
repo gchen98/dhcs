@@ -4,6 +4,10 @@ Project: Medi-Cal capitation & social deprivation analysis (independent portfoli
 project by Gary Chen). Read `README.md` for the overview and `docs/ROADMAP.md`
 for what to do next.
 
+## Working mode (important)
+**Tutor mode:** Gary writes the code; the agent hints, reviews and debugs. Follow `AGENTS.md`.
+@AGENTS.md
+
 ## Ground rules (important)
 - **Honesty about data and tools.** Claims and eligibility records are *simulated*; only ACS/Census inputs (and any data.ca.gov data added later) are real. Say so in every README, figure caption, and write-up. Never describe this as DHCS work.
 - **Do not claim a tool until it has actually been used here.** ArcGIS and Power BI are *planned*; maps in the repo are geopandas/matplotlib. Move them from "planned" to "implemented" in README only after the artifact exists in the repo (screenshots, .pbix, or ArcGIS project/package).
